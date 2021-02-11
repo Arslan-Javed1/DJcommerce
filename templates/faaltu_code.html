@@ -1,0 +1,194 @@
+<div class="koko{{ pro.id }} card-footer m-0 p-0"></div>
+
+
+
+
+
+
+<!-- old home -->
+
+{% extends 'index4.html' %}
+
+
+
+
+{% block content %}
+{% load cart %}
+
+<div class="container">
+    <div class="row">
+        {% for pro in products %}
+      <div class="col-md-3">
+        <div class="card">
+            <img class="card-img-top" style="height: 12rem;" src="{{pro.img1.url}}" >
+            <div class="card-body">
+              <a href="{% url 'productdetail' pro.id %}" > 
+                <h6 class="card-title" style="
+                display: block;
+                width: 21;
+                overflow:hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              ">{{ pro.name }}</h6>
+             </a>
+              <p class="card-text">Rs.{{ pro.price }}</p>
+              
+            </div>
+            
+            <div class="koko{{ pro.id }} card-footer m-0 p-0">
+                {% if pro|is_in_cart:request.session.cart %}
+
+                <div id="plusminus{{pro.id}}" class="row m-0 p-0">
+                    <form action="{% url 'addtocart' %}" method="POST" id="{{ pro.id }}" class="remcol col-2 p-0">
+                        {% csrf_token %}
+                        <input hidden type="text" name="prod_id" value="{{pro.id}}">
+                        <input type="submit" value=" - " class="btn btn-block btn-secondary">
+                    </form>
+                    <div class="text-center col" id="prods_in_cart{{pro.id}}">{{pro|how_many_in_cart:request.session.cart}}</div>
+                        <form action="{% url 'addtocart' %}" method="POST" id="{{ pro.id }}" class="addcol col-2 p-0">
+                            {% csrf_token %}
+                            <input hidden type="text" name="prod_id" value="{{pro.id}}">
+                            <input type="submit" id="kk" value=" + " class="btn btn-block btn-secondary">
+                        </form>
+                </div>
+
+                {% else %}
+                <div id="singleadd{{pro.id}}" class="row m-0 p-0">
+                    <form action="{% url 'addtocart' %}" method="POST" id="{{ pro.id }}" class="first_add btn-block">
+                        {% csrf_token %}
+                        <input hidden type="text" name="prod_id" value="{{pro.id}}">
+                        <input type="submit"  class="float-right btn btn-secondary form-control" value="Add to Cart">
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+          </div>
+      </div>
+      {% endfor %}
+      <div hidden id="ok"> checking </div>
+    </div>
+</div>
+  
+
+
+{% endblock content %}
+
+{% block scripts %}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.addcol').on('submit', function (e) {
+            e.preventDefault();
+            let newCount = 0;
+            const product_id = $(this).attr('id');
+            const p_url = $(this).attr('action');
+            const cartCount = $(`#prods_in_cart${product_id}`).text();
+            const trim = $.trim(cartCount);
+            const trimCount = parseInt(trim);
+            
+            $.ajax({
+                type: 'POST',
+                url: p_url,
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                    'prod_id': product_id,
+                },
+                success: function(response){
+                    newCount = trimCount+1;
+                    $(`#prods_in_cart${product_id}`).text(newCount);
+                },
+                error: function(response){
+                    console.log('error', response)
+                }
+            });
+        });
+
+
+
+
+        $('.remcol').on('submit', function (e) {
+            e.preventDefault();
+            let newCount = 0;
+            const product_id = $(this).attr('id');
+            const p_url = $(this).attr('action');
+            const cartCount = $(`#prods_in_cart${product_id}`).text();
+            const trim = $.trim(cartCount);
+            const trimCount = parseInt(trim);
+            
+            $.ajax({
+                type: 'POST',
+                url: p_url,
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                    'prod_id': product_id,
+                    'remove': 1,
+                },
+                success: function(response){
+                    newCount = trimCount-1;
+                    $(`#prods_in_cart${product_id}`).text(newCount);
+                },
+                error: function(response){
+                    console.log('error', response)
+                }
+            });
+        });
+
+
+
+
+
+        $('.first_add').on('submit', function (e) {
+            e.preventDefault();
+            const product_id = $(this).attr('id');
+            const p_url = $(this).attr('action');
+            console.log(product_id);
+            console.log(p_url);
+            $.ajax({
+                type: 'POST',
+                url: p_url,
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                    'prod_id': product_id,
+                },
+                success: function(response){
+                    $(`#singleadd${product_id}`).hide();
+                    $(`#plusminus${product_id}`).show();
+                },
+                error: function(response){
+                    console.log('error', response)
+                }
+            });
+        });
+    });
+</script>
+{% endblock scripts %}
+
+
+
+
+<script>
+    $('.first_add').on('submit', function (e) {
+      e.preventDefault();
+      let newCount = 0;
+      const product_id = $(this).attr('id');
+      const p_url = $(this).attr('action');
+      const cartCount = $('#prods_in_cart').text();
+      const trim = $.trim(cartCount);
+      const trimCount = parseInt(trim);
+      
+      $.ajax({
+          type: 'POST',
+          url: p_url,
+          data: {
+              'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+              'prod_id': product_id,
+          },
+          success: function(response){
+              newCount = trimCount+1;
+              $('#prods_in_cart').text(newCount);
+          },
+          error: function(response){
+              console.log('error', response)
+          }
+      });
+  });
+  </script>

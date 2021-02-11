@@ -1,0 +1,52 @@
+{% extends 'index4.html' %}
+{% load cart %}
+
+{% block navbutton %}
+<a href="{% url 'home' %}">
+    <h5>Kitaabyn</h5>
+</a>
+{% endblock navbutton %}
+
+
+
+
+
+{% block content %}
+{% load cart %}
+
+<div class="container">
+    <div class="row">
+        {% for pro in products %}
+        <div class="col-md-3">
+            <div class="card">
+                <img class="card-img-top" style="height: 12rem;" src="{{pro.img1.url}}">
+                <div class="card-body">
+                    <p style="
+                display: block;
+                width: 21;
+                height: 50;
+                overflow:hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              ">{{pro.description}}</p>
+                    <a href="{% url 'productdetail' pro.id %}">
+                        <h6 class="card-title" style="
+                display: block;
+                width: 21;
+                overflow:hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              ">{{ pro.name }}</h6>
+                    </a>
+                    <p class="card-text">Rs.{{ pro.price }}</p>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+{% endblock content %}

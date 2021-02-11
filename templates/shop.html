@@ -1,0 +1,113 @@
+
+{% extends 'index4.html' %}
+
+{% block custom_title %}
+    <title>Kitaabyn | Shop</title>
+{% endblock custom_title %}
+
+{% block side %}
+<nav id="sidebar">
+    <div class="sidebar-header">
+        <h3><a href="/">Kitaabyn</a></h3>
+            
+        <strong><a href="/">K.</a></strong>
+    </div>
+
+    <ul class="list-unstyled components">
+        
+        <li>
+            <a href="{% url 'shopview' %}">
+                <i class="fas fa-home"></i>
+                All Products
+            </a>
+        </li>
+        <li>
+            
+            <a href="#pageSubmenu" data-toggle="collapse"  class="dropdown-toggle">
+                <i class="fas fa-copy"></i>
+                Categories
+            </a>
+            <ul class="collapse list-unstyled" id="pageSubmenu">
+                {% for cat in categories %}
+                <li>
+                    <a href="/shopview/?cat={{cat.id}}">{{cat.name}}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </li>
+        
+        
+        
+    </ul>
+
+</nav>
+{% endblock side %}
+
+                {% block navbutton %}
+                    <button type="button" id="sidebarCollapse" class="btn btn-info">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                {% endblock navbutton %}
+
+
+{% block content %}
+{% load cart %}
+
+<div class="container">
+    <div class="row">
+        {% for pro in products %}
+      <div class="col-md-3">
+        <div class="card">
+            <img class="card-img-top" style="height: 12rem;" src="{{pro.img1.url}}" >
+            <div class="card-body">
+              <a href="{% url 'productdetail' pro.id %}" > 
+                <h6 class="card-title" style="
+                display: block;
+                width: 21;
+                overflow:hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              ">{{ pro.name }}</h6>
+             </a>
+              <p class="card-text">Rs.{{ pro.price }}/-</p>
+              
+            </div>
+            
+            <div class="card-footer m-0 p-0">
+                <div class="row m-0 p-0">
+                    {% if pro.available %}
+                    <form action="{% url 'productdetail' pro.id %}" method="POST" class="btn-block">
+                        {% csrf_token %}
+                        <input hidden type="text" name="prod_id" value="{{pro.id}}">
+                        <input type="submit"  class="float-right btn btn-secondary form-control" value="Add to Cart">
+                    </form>
+                    {% else %}
+                        <button disabled="disabled" class="btn btn-secondary" style="width: 17rem;">Out of stock</button>
+                    {% endif %}
+                </div>
+            </div>
+          </div>
+      </div>
+      {% endfor %}
+    </div>
+</div>
+  
+
+
+{% endblock content %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+    </script>
+    <script>
+        $('.dropdown-toggle').dropdown()
+    </script>
+{% endblock scripts %}
+
+
+    

@@ -1,0 +1,167 @@
+{% load static %}
+{% load cart %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    {% block custom_title %}
+    <title>Kitaabyn</title>
+    {% endblock custom_title %}
+    
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'style4.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.0.0/magnific-popup.min.css" integrity="sha512-nIm/JGUwrzblLex/meoxJSPdAKQOe2bLhnrZ81g5Jbh519z8GFJIWu87WAhBH+RAyGbM4+U3S2h+kL5JoV6/wA==" crossorigin="anonymous" />
+
+    {% block custom_head %}
+    {% endblock custom_head %}
+
+    <style>
+        .dropbtn {
+          background-color: #ffee;
+          color: black;
+          padding: 11px;
+          font-size: 16px;
+          border: none;
+          cursor: pointer;
+        }
+        
+        .dropdown {
+          position: relative;
+        }
+        
+        .dropdown-content {
+          display: none;
+          position: absolute;
+          right: 0;
+          background-color: #f9f9f9;
+          min-width: 160px;
+          box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+          z-index: 1;
+        }
+        
+        .dropdown-content a {
+          color: black;
+          padding: 12px 16px;
+          text-decoration: none;
+          display: block;
+        }
+        
+        .dropdown-content a:hover {background-color: #f1f1f1;}
+        .dropdown:hover .dropdown-content {display: block;}
+        .dropdown:hover .dropbtn {background-color: #f1f1f1;}
+        </style>
+
+    <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        td, th {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+        }
+        
+        tr:nth-child(even) {
+          background-color: #dddddd;
+        }
+        </style>
+
+
+</head>
+
+<body>
+    
+
+    <div class="wrapper">
+        <!-- Sidebar  -->
+        {% block side %}
+
+        {% endblock side %}
+
+        <!-- Page Content  -->
+        <div id="content">
+            
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container">
+                    {% block navbutton %}
+                    
+                    {% endblock navbutton %}
+                    <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <i class="fas fa-align-justify"></i>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="nav navbar-nav ml-auto">
+                            
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{% url 'shopview' %}">Shop</a>
+                            </li>
+                            <li class="nav-item active">
+                                <div class="dropdown" style="float:right;">
+                                    <a href="{% url 'cartview' %}"><button class="dropbtn">Cart</button></a>
+                                    <div class="dropdown-content" style="width: 18rem;">
+                                      {% if cart_items %}
+                                      <strong><a href="{% url 'cartview' %}" style="margin-bottom: 0; padding-bottom: 0;"> Go to cart</a></strong><hr>
+                                        {% for cart_item in cart_items %}
+                                        <div class="row p-0 m-0">
+                                          <div class="col-8 p-0 m-0">
+                                            <a href="{% url 'productdetail' cart_item.id %}">{{cart_item.name}}</a>
+                                              <small>
+                                                  <p style="padding-left: 1rem;">{{cart_item|how_many_in_cart:request.session.cart}}x | Rs.{{cart_item|cal_total:request.session.cart}}/-</p>
+                                              </small>
+                                              <form style="padding-left: 1rem;" action="{% url 'delitem' %}" method="POST" id="{{ pro.id }}" data-price="{{pro.price}}" class="delitem">
+                                                {% csrf_token %}
+                                                <input hidden type="text" name="prod_id" value="{{pro.id}}">
+                                                <!-- <input type="submit" value="Delete item" class="btn btn-block btn-danger p-0 m-0" style="width: 6rem;"> -->
+                                              </form>
+                                          </div>
+                                          <div class="col-4">
+                                            <img style="height: 6rem; width: 6rem;" src="{{cart_item.img1.url}}">
+                                          </div>
+                                        </div>
+                                        <hr>
+                                        {% endfor %}
+                                        <!-- <strong style="padding-left: 1rem; padding-bottom: 5rem;">Grand total: {{grand_total}}</strong><hr> -->
+                                        {% endif %}
+                                    </div>
+                                  </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+
+            {% block content %}
+
+            {% endblock content %}
+           
+                    
+              
+
+
+
+   <script src="{% static 'myjs/jquery.js' %}"></script>
+    <script src="{% static 'myjs/popper.js' %}"></script>
+    <script src="{% static 'myjs/bootstrap.js' %}"></script>
+    {% block scripts %}
+    {% endblock scripts %}
+
+
+</body>
+
+</html>

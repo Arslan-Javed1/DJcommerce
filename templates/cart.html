@@ -1,0 +1,216 @@
+{% extends 'index4.html' %}
+
+{% load cart %}
+
+{% block navbutton %}
+<a href="{% url 'home' %}">
+    <h5>Kitaabyn</h5>
+</a>
+{% endblock navbutton %}
+
+
+
+
+{% block content %}
+    <h1>Cart</h1>
+    <table style="width:100%">
+        
+        <tr>
+            <th>Product Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+            <th>Increase</th>
+            <th>Decrease</th>
+            <th>Delete</th>
+        </tr>
+    {% for pro in products %}
+        <tr id="product_row{{pro.id}}">
+            <td>{{pro.name}}</td>
+            <td>{{pro.price}}</td>
+            <td id="prods_in_cart{{ pro.id }}">{{pro|how_many_in_cart:request.session.cart}}</td>
+            <td id="total{{ pro.id }}">{{pro|cal_total:request.session.cart}}</td>
+            <td>
+                <form action="{% url 'addtocart' %}" method="POST" id="{{ pro.id }}" data-price="{{pro.price}}" class="addcol">
+                    {% csrf_token %}
+                    <input hidden type="text" name="prod_id" value="{{pro.id}}">
+                    <input type="submit" id="kk" value=" + " class="btn btn-block btn-secondary">
+                </form>
+            </td>
+            <td>
+                <form action="{% url 'addtocart' %}" method="POST" id="{{ pro.id }}" data-price="{{pro.price}}" class="remcol">
+                    {% csrf_token %}
+                    <input hidden type="text" name="prod_id" value="{{pro.id}}">
+                    <input type="submit" value=" - " class="btn btn-block btn-secondary">
+                </form>
+            </td>
+            <td>
+                <form action="{% url 'delitem' %}" method="POST" id="{{ pro.id }}" data-price="{{pro.price}}" class="delitem">
+                    {% csrf_token %}
+                    <input hidden type="text" name="prod_id" value="{{pro.id}}">
+                    <input type="submit" value=" Del " class="btn btn-block btn-danger">
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    <tr>
+        <td></td><td></td><td></td><td></td><td></td>
+        <td><strong>Grand total:</strong></td>
+        <td><strong id="g_t">{{grand_total}}</strong></td>
+    </tr>
+</table>
+<br>
+<div class="row">
+    <div class="col-9"></div>
+    <div class="col-3">
+        <button class="btn btn-block btn-secondary">Checkout</button>
+    </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-9"></div>
+    <div class="col-3">
+        <form action="{% url 'shopview' %}">
+            <button type="submit" class="btn btn-block btn-secondary">Continue Shopping</button>
+        </form>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.addcol').on('submit', function (e) {
+            e.preventDefault();
+            let newCount = 0.0;
+            let total = 0.0;
+            let gt = 0.0;
+            const product_id = $(this).attr('id');
+            const p_url = $(this).attr('action');
+            cartCount = $(`#prods_in_cart${product_id}`).text();
+            trim = $.trim(cartCount);
+            const trimCount = parseFloat(trim);
+            const article = document.querySelector('.addcol');
+            const paisaGet = article.dataset.price;
+            const paisa = parseFloat(paisaGet)
+            cartCount = $('#g_t').text();
+            trim = $.trim(cartCount);
+            const trimGrand = parseFloat(trim);
+            
+            
+            
+            $.ajax({
+                type: 'POST',
+                url: p_url,
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                    'prod_id': product_id,
+                },
+                success: function(response){
+                    newCount = trimCount+1;
+                    total = newCount*paisa;
+                    gt = trimGrand+paisa;
+                    $(`#prods_in_cart${product_id}`).text(newCount);
+                    $(`#total${product_id}`).text(total);
+                    $('#g_t').text(gt);
+                },
+                error: function(response){
+                    console.log('error', response)
+                }
+            });
+        });
+
+
+
+
+        $('.remcol').on('submit', function (e) {
+            e.preventDefault();
+            let newCount = 0;
+            let total = 0;
+            let gt = 0.0;
+            const product_id = $(this).attr('id');
+            const p_url = $(this).attr('action');
+            cartCount = $(`#prods_in_cart${product_id}`).text();
+            trim = $.trim(cartCount);
+            const trimCount = parseInt(trim);
+            const article = document.querySelector('.remcol');
+            const paisa = article.dataset.price;
+            cartCount = $('#g_t').text();
+            trim = $.trim(cartCount);
+            const trimGrand = parseFloat(trim);
+            
+            $.ajax({
+                type: 'POST',
+                url: p_url,
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                    'prod_id': product_id,
+                    'remove': 1,
+                },
+                success: function(response){
+                    if (trimCount <= 1){
+                        $(`#product_row${product_id}`).remove();
+                    }
+                    else{
+                        newCount = trimCount-1;
+                        total = newCount*paisa;
+                        gt = trimGrand-paisa;
+                        $('#g_t').text(gt);
+                        $(`#prods_in_cart${product_id}`).text(newCount);
+                        $(`#total${product_id}`).text(total);
+                    }
+                    
+                },
+                error: function(response){
+                    console.log('error', response)
+                }
+            });
+        });
+
+
+
+
+        $('.delitem').on('submit', function (e) {
+            e.preventDefault();
+            let gt = 0.0;
+            const product_id = $(this).attr('id');
+            const p_url = $(this).attr('action');
+            cartCount = $(`#prods_in_cart${product_id}`).text();
+            trim = $.trim(cartCount);
+            const trimCount = parseInt(trim);
+            const article = document.querySelector('.remcol');
+            const paisa = article.dataset.price;
+            cartCount = $('#g_t').text();
+            trim = $.trim(cartCount);
+            const trimGrand = parseFloat(trim);
+            
+            $.ajax({
+                type: 'POST',
+                url: p_url,
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                    'prod_id': product_id,
+                },
+                success: function(response){
+                    $(`#product_row${product_id}`).remove();
+                    gt = trimGrand-(trimCount*paisa);
+                    $('#g_t').text(gt);
+                },
+                error: function(response){
+                    console.log('error', response)
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock scripts %}
+
+
+
+
+
+
