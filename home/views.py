@@ -140,6 +140,28 @@ def productDetail(request, id):
     else:
         return render(request, 'product_detail.html', {'product':product})
 
+
+def checkOut(request):
+    if (request.method=='POST'):
+        name = request.POST.get('name')
+        address=request.POST.get('address')
+        phone = request.POST.get('phone')
+        cart = request.session.get('cart')
+        products = Product.get_products_by_id(list(cart.keys()))
+        print(products,name,address,phone,cart)
+        for product in products:
+            
+            order = Orders( name = name,
+                            product=product,
+                            price = product.price,
+                            address=address,
+                            phone=phone,
+                            
+                            quantity=cart.get(str(product.id)))
+            
+            order.placeOrder()
+            request.session['cart']={}
+    return render(request, 'checkout.html')
 def shopView(request):
     cat_id = request.GET.get('cat')
     if cat_id:

@@ -39,6 +39,10 @@ class Product(models.Model):
     img2 = models.ImageField(upload_to='prod_imgs/')
     img3 = models.ImageField(upload_to='prod_imgs/')
 
+  
+    def get_products_by_id(ids):
+        return Product.objects.filter(id__in=ids)
+
     def get_all_products():
         return Product.objects.all()
 
@@ -67,18 +71,21 @@ class OrderItem(models.Model):
         
         return OrderItem.product.price*OrderItem.quantity
 
-class Order(models.Model):
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
-    city = models.CharField(max_length=150)
-    country = models.CharField(max_length=150)
-    zip_code = models.IntegerField()
-    total_charges = models.FloatField()
-
-    def __str__(self):
-        return self.first_name + ' | ' + self.last_name + ' | ' + self.total_charges
 
 
+    
+class Orders(models.Model):
+    product = models.ForeignKey(Product, on_delete= models.CASCADE)
+
+    name = models.CharField(max_length=150)
+    
+    address = models.CharField(max_length=150)
+    phone = models.IntegerField()
+    quantity = models.IntegerField(default=1)
+    price= models.IntegerField()
+
+    def placeOrder(self):
+        self.save()
     
 
 def create_slug(instance, new_slug=None):

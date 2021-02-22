@@ -23,5 +23,5 @@ class ProductAdmin(admin.ModelAdmin):
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(SubCategory, SubCategoryAdmin)
 admin.site.register(Product,ProductAdmin)
-admin.site.register(Order)
+admin.site.register(Orders)
 admin.site.register(OrderItem)
