@@ -5,7 +5,7 @@ from .views import *
 
 
 urlpatterns = [
-        #path('', homeView, name= 'home'),
+        path('', homeView, name= 'home'),
         path('getsession/', getsession, name= 'getsession'),
         path('setsession/', setsession, name= 'setsession'),
         path('delsession/', delsession, name= 'delsession'),
